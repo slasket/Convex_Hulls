@@ -3,6 +3,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.*;
+
 public class Main {
 
 
@@ -37,16 +39,29 @@ public class Main {
     public static void main(String[] args) {
         //testStrictlyOver();
 
-        List<Point> arr100 = randomPointsSquare(1000);
+        List<Point> arrXSqrd = randomPointsXSqrd(1000000);
+        List<Point> arrSquare = randomPointsSquare(1000000);
+        List<Point> arrCircle = randomPointsCircle(1000000);
 
+        timeAlgo("INC_CH",arrXSqrd);
+        timeAlgo("INC_CH",arrSquare);
+        timeAlgo("INC_CH",arrCircle);
+
+    }
+
+    public static void timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
-        System.out.println(INC_CH(arr100));
+
+        switch (algo){
+            case "INC_CH":
+                INC_CH(points);
+            case "GIFT_CH":
+                //to be implemented
+        }
+
         long endTime = System.nanoTime();
         long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
-
-        System.out.println("INC_CH 100:" + duration+"ms");
-
-
+        System.out.println(algo+ " "+ points.size()+" "+ duration+"ms");
 
     }
 
@@ -70,11 +85,32 @@ public class Main {
         ArrayList<Point> points = new ArrayList<>();
         Random r = new Random(0);
 
-        for (int i = 1; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             Point p = new Point(100 * r.nextFloat(), 100 * r.nextFloat());
             points.add(p);
         }
         Collections.sort(points);
+        return points;
+    }
+
+    //implementation idea taken from stackoverflow comment: https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
+    public static List<Point> randomPointsCircle(int n){
+        ArrayList<Point> points = new ArrayList<>();
+        Random r = new Random(0);
+
+        for (int i = 0; i < n; i++) {
+            float radius = 2*(float) PI*r.nextFloat();
+            float u = r.nextFloat()+r.nextFloat();
+            float num;
+            if (u>1){
+                num=2-u;
+            }else{
+                num=u;
+            }
+            Point p = new Point(num*(float) cos(radius),  (num*(float) sin(radius)));
+            points.add(p);
+        }
+
         return points;
     }
 
