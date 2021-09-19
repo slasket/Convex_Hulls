@@ -13,23 +13,14 @@ public class Main {
     private static boolean isStriclyOver1(Point p1, Point p2, Point p3){
         return p1.x*p2.y - p1.x * p3.y + p2.x*p3.y - p2.x*p1.y + p3.x*p1.y - p3.x*p2.y > 0;
     }
-    
+
     private static boolean isStriclyOver2(Point p1, Point p2, Point p3){
         return p1.x * p2.y+p2.x*p3.y+ p3.x*p1.y - p1.x * p3.y - p2.x*p1.y - p3.x*p2.y > 0;
     }
 
     private static void testStrictlyOver() {
         int n = 500;
-        ArrayList<Point> points = new ArrayList<>();
-        Point p0 = new Point(0,0);
-        points.add(p0);
-        Random r = new Random(0);
-        for (int i = 1; i < n; i++) {
-            float oldX = points.get(i-1).x;
-            float newX = oldX + r.nextFloat();
-            Point p = new Point(newX, newX*newX);
-            points.add(p);
-        }
+        ArrayList<Point> points = randomPointsXSqrd(n);
 
         int count = 0;
         for (int i = 2; i < n; i++) {
@@ -42,16 +33,40 @@ public class Main {
     }
 
 
+
     public static void main(String[] args) {
         //testStrictlyOver();
 
-        System.out.println(INC_CH(getRandomSortedArrForConvexHull(100)));
+        List<Point> arr100 = randomPointsSquare(1000);
+
+        long startTime = System.nanoTime();
+        System.out.println(INC_CH(arr100));
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
+
+        System.out.println("INC_CH 100:" + duration+"ms");
+
+
 
     }
 
+    private static ArrayList<Point> randomPointsXSqrd(int n) {
+        ArrayList<Point> points = new ArrayList<>();
+        Point p0 = new Point(0,0);
+        points.add(p0);
+        Random r = new Random(0);
+        for (int i = 1; i < n; i++) {
+            float oldX = points.get(i-1).x;
+            float newX = oldX + r.nextFloat();
+            Point p = new Point(newX, newX*newX);
+            points.add(p);
+        }
+        Collections.sort(points);
+        return points;
+    }
 
 
-    public static List<Point> getRandomSortedArrForConvexHull(int n){
+    public static List<Point> randomPointsSquare(int n){
         ArrayList<Point> points = new ArrayList<>();
         Random r = new Random(0);
 
@@ -59,9 +74,7 @@ public class Main {
             Point p = new Point(100 * r.nextFloat(), 100 * r.nextFloat());
             points.add(p);
         }
-
         Collections.sort(points);
-
         return points;
     }
 
