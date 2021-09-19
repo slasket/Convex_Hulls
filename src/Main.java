@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.awt.geom.Line2D;
 
 import static java.lang.Math.*;
 
@@ -34,29 +35,60 @@ public class Main {
         System.out.println("count: " + count);
     }
 
+    private static void testAngleCalculation() {
+        Line2D Line1 = new Line2D.Float(1.0f,1.0f,1.0f,Float.POSITIVE_INFINITY);
+        Line2D Line2 = new Line2D.Float(1.0f,1.0f,2.0f,2.0f);
+        if (angleBetween2Lines(Line1,Line2)==45.0f){
+            System.out.println("grøn linje, knap en bajs");
+        }else{
+            System.out.println("ikke grøn linje");
+        }
+    }
+//
+    private static void testDownwardsAnglePositive() {
+        Line2D Line1 = new Line2D.Float(0f,0f,0f,-1f);
+        Line2D Line2 = new Line2D.Float(0f,0f,-1f,0f);
+        if (angleBetween2Lines(Line1,Line2)==90.0f){
+            System.out.println("grøn linje2, knap en ny bajs");
+        }else {
+            System.out.println("ikke grøn linje nummer 2: dropud.nu");
+        }
+    }
+
 
 
     public static void main(String[] args) {
         //testStrictlyOver();
+        //testAngleCalculation();
+        //testDownwardsAnglePositive();
+
 
         List<Point> arrXSqrd = randomPointsXSqrd(1000000);
         List<Point> arrSquare = randomPointsSquare(1000000);
         List<Point> arrCircle = randomPointsCircle(1000000);
 
+        //System.out.println(arrSquare);
+
         timeAlgo("INC_CH",arrXSqrd);
         timeAlgo("INC_CH",arrSquare);
         timeAlgo("INC_CH",arrCircle);
 
+        timeAlgo("GIFT_CH",arrXSqrd);
+        timeAlgo("GIFT_CH",arrSquare);
+        timeAlgo("GIFT_CH",arrCircle);
+
     }
+
 
     public static void timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
-
         switch (algo){
             case "INC_CH":
                 INC_CH(points);
+                break;
             case "GIFT_CH":
-                //to be implemented
+                GIFT_CH(points);
+                break;
         }
 
         long endTime = System.nanoTime();
@@ -110,7 +142,7 @@ public class Main {
             Point p = new Point(num*(float) cos(radius),  (num*(float) sin(radius)));
             points.add(p);
         }
-
+        Collections.sort(points);
         return points;
     }
 
@@ -130,7 +162,6 @@ public class Main {
             UH.add(points.get(i));
             s++;
         }
-
 
         List<Point> BH = new ArrayList<>();
         s = 1;
@@ -152,6 +183,77 @@ public class Main {
 
         UH.addAll(BH);
         return UH;
+    }
+
+    public static List<Point> GIFT_CH(List<Point> points){
+        //init vals
+        List<Point> CH = new ArrayList<>();
+        CH.add(points.get(0));
+        Point pivot = CH.get(0);
+        int pivotIdx = 0;
+        Point q1 = CH.get(0);
+        Point rayEnd = new Point(pivot.x,Float.POSITIVE_INFINITY);
+        Line2D rayLine = new Line2D.Float(pivot.x,pivot.y,rayEnd.x,rayEnd.y);
+
+        //looping
+        while (true){
+            int candidateIdx = 0;
+            Line2D candidateLine = null;
+            float smallestAngleSeen = Float.POSITIVE_INFINITY;
+
+            for (int i = 0; i < points.size(); i++) {
+                if (i != pivotIdx){
+                    Point ithPoint = points.get(i);
+                    Line2D lineI = new Line2D.Float(pivot.x,pivot.y,ithPoint.x,ithPoint.y);
+                    float angle = angleBetween2Lines(rayLine, lineI);
+
+                    if (angle < smallestAngleSeen){
+                        candidateIdx = i;
+                        candidateLine = lineI;
+                        smallestAngleSeen = angle;
+                    }
+                }
+            }
+            if (candidateIdx==0){
+                break;
+            }
+            CH.add(points.get(candidateIdx));
+            pivotIdx = candidateIdx;
+            pivot = points.get(candidateIdx);
+            rayLine = candidateLine;
+        }
+
+        return CH;
+    }
+
+    public static float angleBetween2Slopes(float slope1, float slope2 ){
+        float angle = (float) (Math.atan((slope2-slope1)/(1-slope2*slope1)));
+        boolean isDevil = angle<0;
+        if (isDevil){
+            System.out.println("angle is devil: "+ angle +" slope1: "+slope1+ " slope2: "+slope2);
+        }
+        return angle;
+    }
+    public static float angleBetween2Lines(Line2D line1, Line2D line2) {
+        double angle1 = Math.atan2(line1.getY1() - line1.getY2(),
+                line1.getX1() - line1.getX2());
+        double angle2 = Math.atan2(line2.getY1() - line2.getY2(),
+                line2.getX1() - line2.getX2());
+        float angle = (float) (abs(toDegrees(angle1) - toDegrees(angle2)));
+        if(angle > 180) return 360-angle;
+        return angle;
+    }
+
+    public static int indexOfSmallesElement(List<Float> list){
+        int indexOfMin=0;
+        float minVal=Float.POSITIVE_INFINITY;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) < minVal){
+                minVal= list.get(i);
+                indexOfMin = i;
+            }
+        }
+        return indexOfMin;
     }
 }
 
