@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.awt.geom.Line2D;
-import java.util.SortedMap;
 
 public class Main {
 
@@ -65,14 +64,28 @@ public class Main {
 
     }
 
+    public static void threePointComparison(){
+        Point p1 = new Point(0.373608f, 99.32321f);
+        Point p2 = new Point(66.6946f,  94.77459f);
+        Point p3 = new Point(83.47799f,  93.61499f);
+        //should be strictly over or true
+        System.out.println(util.isStriclyOver(p1,p3,p2));
+
+        //ray comparison
+        Line2D rayLine = new Line2D.Float(p1.x,p1.y,p2.x,p2.y);
+        Line2D candidateLine = new Line2D.Float(p1.x,p1.y,p3.x,p3.y);
+        System.out.println(util.angleBetween2Lines(rayLine,candidateLine));
+
+
+    }
+
 
     public static void main(String[] args) {
+        threePointComparison();
         //testStrictlyOver();
         //testAngleCalculation();
         //testDownwardsAnglePositive();
-        //System.out.println(arrSquare);
         //testMiniExample();
-
 
         List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(10);
         List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
@@ -86,18 +99,43 @@ public class Main {
         compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
         compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
+        testVariableInputSize("compare",200);
+        testVariableInputSize("time",100000);
 
-        //timeAlgo("INC_CH",arrXSqrd);
-        //timeAlgo("INC_CH",arrSquare);
-        //timeAlgo("INC_CH",arrCircle);
-        //timeAlgo("CH_CH",arrXSqrd);
-        //timeAlgo("CH_CH",arrSquare);
-        //timeAlgo("CH_CH",arrCircle);
-        //timeAlgo("GIFT_CH",arrXSqrd);
-        //timeAlgo("GIFT_CH",arrSquare);
-        //timeAlgo("GIFT_CH",arrCircle);
 
     }
+
+    public static void testVariableInputSize(String option, int inputSize){
+        System.out.println("Testing for input of size "+inputSize);
+        List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(inputSize);
+        List<Point> arrSquare = pointGeneration.randomPointsSquare(inputSize);
+        List<Point> arrCircle = pointGeneration.randomPointsCircle(inputSize);
+
+        switch (option){
+            case "compare":
+                compareAlgorithms("INC_CH", "CH_CH", arrSquare);
+                compareAlgorithms("INC_CH", "CH_CH", arrCircle);
+                compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+
+                compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
+                compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
+                compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
+                break;
+            case "time":
+                timeAlgo("INC_CH",arrSquare);
+                timeAlgo("INC_CH",arrCircle);
+                timeAlgo("INC_CH",arrXSqrd);
+                timeAlgo("CH_CH",arrSquare);
+                timeAlgo("CH_CH",arrCircle);
+                timeAlgo("CH_CH",arrXSqrd);
+                timeAlgo("GIFT_CH",arrSquare);
+                timeAlgo("GIFT_CH",arrCircle);
+                timeAlgo("GIFT_CH",arrXSqrd);
+
+        }
+
+    }
+
 
     public static void timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
@@ -120,7 +158,6 @@ public class Main {
                 return new ArrayList<>();
         }
     }
-
 
     public static List<Point> INC_CH(List<Point> points){
         List<Point> UH = new ArrayList<>();
@@ -203,16 +240,17 @@ public class Main {
     public static List<Point> CH_CH(List<Point> points){
         int n = points.size();
         for (int i = 1; i < (int) Math.log(n); i++) {
-            ChansIdentifier result = hullsWithSize(points,(int) Math.pow(2,Math.pow(2,i)));
+            List<Point> result = hullsWithSize(points,(int) Math.pow(2,Math.pow(2,i)));
 
-            if (result.getCondition().equals("success")){
-                return result.getHull();
+            //if the list is not empty we terminate
+            if (!result.isEmpty()){
+                return result;
             }
         }
         return new ArrayList<Point>();
     }
 
-    private static ChansIdentifier hullsWithSize(List<Point> points, int amountOfSubsets) {
+    private static List<Point> hullsWithSize(List<Point> points, int amountOfSubsets) {
         int n = points.size();
         //list of all points in the partial hulls
         List<Point> subsetHullsCombined = new ArrayList<>();
@@ -230,29 +268,11 @@ public class Main {
 
         List<Point> hull = GIFT_CH(subsetHullsCombined);
         if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
-            return new ChansIdentifier("success", hull);
-        }
-
-        return new ChansIdentifier("fail", new ArrayList<Point>());
-
-    }
-
-    public static class ChansIdentifier{
-        public String condition;
-        public List<Point> hull;
-
-        public ChansIdentifier(String condition, List<Point> hull) {
-            this.condition = condition;
-            this.hull = hull;
-        }
-
-        public List<Point> getHull() {
             return hull;
         }
 
-        public String getCondition() {
-            return condition;
-        }
+        return new ArrayList<Point>();
+
     }
 
 }
