@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.awt.geom.Line2D;
+import java.util.SortedMap;
 
 public class Main {
 
@@ -40,14 +41,28 @@ public class Main {
     }
 
 
-    public static void testChansEqualToGraham(List<Point> points) {
-        List<Point> grahamRun = INC_CH(points);
-        List<Point> chansRun = CH_CH(points);
-        //if the two lists are not equal
-        if(!grahamRun.equals(chansRun)){
-            System.out.println("Chans and graham not equal:");
-            System.out.println("Grahams: "+grahamRun.size() + " Chans: "+ chansRun.size());
+    public static void compareAlgorithms(String alg1, String alg2, List<Point> points) {
+        List<Point> alg1res = runAlgo(alg1,points);
+        List<Point> alg2res = runAlgo(alg2,points);
+
+        if (!alg1res.equals(alg2res)){
+            System.out.println("NOTEQUAL: "+alg1+ ": "+ alg1res.size()+" " + alg2 + ": "+alg2res.size());
+            System.out.println(alg1+" "+ alg1res);
+            System.out.println(alg2+" "+ alg2res);
+        }else {
+            System.out.println(alg1 +", " + alg2 +" are equal.");
         }
+
+    }
+
+
+    public static void testMiniExample(){
+        List<Point> miniarr = pointGeneration.randomPointsSquare(10);
+        System.out.println(miniarr);
+        System.out.println("gram:" +INC_CH(miniarr));
+        System.out.println("chan:" + CH_CH(miniarr));
+        System.out.println("gift:" + GIFT_CH(miniarr));
+
     }
 
 
@@ -56,48 +71,54 @@ public class Main {
         //testAngleCalculation();
         //testDownwardsAnglePositive();
         //System.out.println(arrSquare);
-
-        List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(10000);
-        List<Point> arrSquare = pointGeneration.randomPointsSquare(10000);
-        List<Point> arrCircle = pointGeneration.randomPointsCircle(10000);
+        //testMiniExample();
 
 
-        testChansEqualToGraham(arrXSqrd);
-        testChansEqualToGraham(arrSquare);
-        testChansEqualToGraham(arrCircle);
+        List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(10);
+        List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
+        List<Point> arrCircle = pointGeneration.randomPointsCircle(10);
+
+        compareAlgorithms("INC_CH", "CH_CH", arrSquare);
+        compareAlgorithms("INC_CH", "CH_CH", arrCircle);
+        compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+
+        compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
+        compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
+        compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
 
-        timeAlgo("INC_CH",arrXSqrd);
-        timeAlgo("INC_CH",arrSquare);
-        timeAlgo("INC_CH",arrCircle);
-
-        timeAlgo("CH_CH",arrCircle);
-
+        //timeAlgo("INC_CH",arrXSqrd);
+        //timeAlgo("INC_CH",arrSquare);
+        //timeAlgo("INC_CH",arrCircle);
+        //timeAlgo("CH_CH",arrXSqrd);
+        //timeAlgo("CH_CH",arrSquare);
+        //timeAlgo("CH_CH",arrCircle);
         //timeAlgo("GIFT_CH",arrXSqrd);
         //timeAlgo("GIFT_CH",arrSquare);
         //timeAlgo("GIFT_CH",arrCircle);
 
     }
 
-
     public static void timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
-        switch (algo){
-            case "INC_CH":
-                INC_CH(points);
-                break;
-            case "GIFT_CH":
-                GIFT_CH(points);
-                break;
-            case "CH_CH":
-                CH_CH(points);
-                break;
-        }
-
+        runAlgo(algo,points);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
         System.out.println(algo+ " "+ points.size()+" "+ duration+"ms");
 
+    }
+
+    public static List<Point> runAlgo(String algo, List<Point> points){
+        switch (algo) {
+            case "INC_CH":
+                return INC_CH(points);
+            case "GIFT_CH":
+                return GIFT_CH(points);
+            case "CH_CH":
+                return CH_CH(points);
+            default:
+                return new ArrayList<>();
+        }
     }
 
 
@@ -181,7 +202,7 @@ public class Main {
 
     public static List<Point> CH_CH(List<Point> points){
         int n = points.size();
-        for (int i = 1; i < Math.log(Math.log(n)); i++) {
+        for (int i = 1; i < (int) Math.log(n); i++) {
             ChansIdentifier result = hullsWithSize(points,(int) Math.pow(2,Math.pow(2,i)));
 
             if (result.getCondition().equals("success")){
@@ -191,20 +212,21 @@ public class Main {
         return new ArrayList<Point>();
     }
 
-    private static ChansIdentifier hullsWithSize(List<Point> points, int h) {
+    private static ChansIdentifier hullsWithSize(List<Point> points, int amountOfSubsets) {
         int n = points.size();
         //list of all points in the partial hulls
         List<Point> subsetHullsCombined = new ArrayList<>();
-        int amountOfSubsets = n/h;
+        int elementsInSubset = n/amountOfSubsets;
         for (int i = 1; i < amountOfSubsets; i++) {
-            List<Point> subsetHull = INC_CH(points.subList((i-1)*h,i*h));
+            List<Point> subsetHull = INC_CH(points.subList((i-1)*elementsInSubset,i*elementsInSubset));
             subsetHullsCombined.addAll(subsetHull);
         }
+
         //get the remaining points that doesnt divide evenly
-        if(amountOfSubsets*h < n){
-            List<Point> subsetHull = INC_CH(points.subList(amountOfSubsets*h+1, n-1));
-            subsetHullsCombined.addAll(subsetHull);
-        }
+        //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
+        List<Point> subsetHull = INC_CH(points.subList(elementsInSubset*(amountOfSubsets-1)+1, n));
+        subsetHullsCombined.addAll(subsetHull);
+
 
         List<Point> hull = GIFT_CH(subsetHullsCombined);
         if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
