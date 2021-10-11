@@ -40,6 +40,16 @@ public class Main {
     }
 
 
+    public static void testChansEqualToGraham(List<Point> points) {
+        List<Point> grahamRun = INC_CH(points);
+        List<Point> chansRun = CH_CH(points);
+        //if the two lists are not equal
+        if(!grahamRun.equals(chansRun)){
+            System.out.println("Chans and graham not equal:");
+            System.out.println("Grahams: "+grahamRun.size() + " Chans: "+ chansRun.size());
+        }
+    }
+
 
     public static void main(String[] args) {
         //testStrictlyOver();
@@ -52,12 +62,16 @@ public class Main {
         List<Point> arrCircle = pointGeneration.randomPointsCircle(10000);
 
 
+        testChansEqualToGraham(arrXSqrd);
+        testChansEqualToGraham(arrSquare);
+        testChansEqualToGraham(arrCircle);
+
 
         timeAlgo("INC_CH",arrXSqrd);
         timeAlgo("INC_CH",arrSquare);
         timeAlgo("INC_CH",arrCircle);
 
-        //timeAlgo("CH_CH",arrCircle);
+        timeAlgo("CH_CH",arrCircle);
 
         //timeAlgo("GIFT_CH",arrXSqrd);
         //timeAlgo("GIFT_CH",arrSquare);
@@ -179,18 +193,23 @@ public class Main {
 
     private static ChansIdentifier hullsWithSize(List<Point> points, int h) {
         int n = points.size();
-        List<List<Point>> partitionedLists = new ArrayList<>();
+        //list of all points in the partial hulls
+        List<Point> subsetHullsCombined = new ArrayList<>();
         int amountOfSubsets = n/h;
         for (int i = 1; i < amountOfSubsets; i++) {
-            List<Point> hullOfPartition = INC_CH(points.subList((i-1)*h,i*h));
-            partitionedLists.add(hullOfPartition);
+            List<Point> subsetHull = INC_CH(points.subList((i-1)*h,i*h));
+            subsetHullsCombined.addAll(subsetHull);
         }
         //get the remaining points that doesnt divide evenly
-        List<Point> hullOfPartition = INC_CH(points.subList(amountOfSubsets*h,points.size()));
-        partitionedLists.add(hullOfPartition);
+        if(amountOfSubsets*h < n){
+            List<Point> subsetHull = INC_CH(points.subList(amountOfSubsets*h+1, n-1));
+            subsetHullsCombined.addAll(subsetHull);
+        }
 
-
-
+        List<Point> hull = GIFT_CH(subsetHullsCombined);
+        if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
+            return new ChansIdentifier("success", hull);
+        }
 
         return new ChansIdentifier("fail", new ArrayList<Point>());
 
