@@ -23,7 +23,15 @@ public class util {
         if (angle > 180) return 360 - angle;
         return angle;
     }
-
+    public static int determineOrientation(Point p1, Point p2, Point p3){
+        float orientationValue = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
+        if(orientationValue >= 0) {
+            return 1; //clockwise
+        }
+        else {
+            return 2; //counterclock wise
+        }
+    }
     public static int indexOfSmallesElement(List<Float> list) {
         int indexOfMin = 0;
         float minVal = Float.POSITIVE_INFINITY;

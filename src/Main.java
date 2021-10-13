@@ -91,9 +91,9 @@ public class Main {
         List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
         List<Point> arrCircle = pointGeneration.randomPointsCircle(10);
 
-        compareAlgorithms("INC_CH", "CH_CH", arrSquare);
-        compareAlgorithms("INC_CH", "CH_CH", arrCircle);
-        compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+        //compareAlgorithms("INC_CH", "CH_CH", arrSquare);
+        //compareAlgorithms("INC_CH", "CH_CH", arrCircle);
+        //compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
 
         compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
         compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
@@ -197,42 +197,29 @@ public class Main {
     }
 
     public static List<Point> GIFT_CH(List<Point> points){
-        //init vals
         List<Point> CH = new ArrayList<>();
-        CH.add(points.get(0));
-        Point pivot = CH.get(0);
-        int pivotIdx = 0;
-        Point q1 = CH.get(0);
-        Point rayEnd = new Point(pivot.x,Float.POSITIVE_INFINITY);
-        Line2D rayLine = new Line2D.Float(pivot.x,pivot.y,rayEnd.x,rayEnd.y);
 
-        //looping
-        while (true){
-            int candidateIdx = 0;
-            Line2D candidateLine = null;
-            float smallestAngleSeen = Float.POSITIVE_INFINITY;
+        int idOfLeftmost = 0;
 
-            for (int i = 0; i < points.size(); i++) {
-                if (i != pivotIdx){
-                    Point ithPoint = points.get(i);
-                    Line2D lineI = new Line2D.Float(pivot.x,pivot.y,ithPoint.x,ithPoint.y);
-                    float angle = util.angleBetween2Lines(rayLine, lineI);
-
-                    if (angle < smallestAngleSeen){
-                        candidateIdx = i;
-                        candidateLine = lineI;
-                        smallestAngleSeen = angle;
-                    }
+        int idOfCurrentPoint = idOfLeftmost;
+        int idOfConsideredPoint;
+        do {
+            CH.add(points.get(idOfCurrentPoint));
+            idOfConsideredPoint = (idOfCurrentPoint + 1) % points.size(); //Considering from the next point while making
+                                                                          //sure we wrap around if we reach the end of the list
+            for(int i = 0; i < points.size(); i++){
+                Point p1 = points.get(idOfCurrentPoint);
+                Point p2 = points.get(i);
+                Point p3 = points.get(idOfConsideredPoint);
+                int orientation = util.determineOrientation(p1, p3, p2);
+                //Determine if counterclockwise
+                if(orientation == 2) {
+                    idOfConsideredPoint = i;
                 }
             }
-            if (candidateIdx==0){
-                break;
-            }
-            CH.add(points.get(candidateIdx));
-            pivotIdx = candidateIdx;
-            pivot = points.get(candidateIdx);
-            rayLine = candidateLine;
-        }
+            idOfCurrentPoint = idOfConsideredPoint;
+
+            } while(idOfCurrentPoint != idOfLeftmost);
 
         return CH;
     }
