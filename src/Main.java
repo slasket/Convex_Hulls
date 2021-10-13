@@ -46,8 +46,8 @@ public class Main {
 
         if (!alg1res.equals(alg2res)){
             System.out.println("NOTEQUAL: "+alg1+ ": "+ alg1res.size()+" " + alg2 + ": "+alg2res.size());
-            System.out.println(alg1+" "+ alg1res);
-            System.out.println(alg2+" "+ alg2res);
+            //System.out.println(alg1+" "+ alg1res);
+            //System.out.println(alg2+" "+ alg2res);
         }else {
             System.out.println(alg1 +", " + alg2 +" are equal.");
         }
@@ -76,7 +76,6 @@ public class Main {
         Line2D candidateLine = new Line2D.Float(p1.x,p1.y,p3.x,p3.y);
         System.out.println(util.angleBetween2Lines(rayLine,candidateLine));
 
-
     }
 
 
@@ -93,16 +92,20 @@ public class Main {
         compareAlgorithms("INC_CH", "CH_CH", arrSquare);
         compareAlgorithms("INC_CH", "CH_CH", arrCircle);
         compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+        System.out.println("");
         compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
         compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
         compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
         testVariableInputSize("compare", "square",200);
 
-        //for (int i = 1; i < 25; i++) {
-        //    //8 means we start from 256
-        //    testVariableInputSize("time","square",(int) Math.pow(2,i));
-        //}
+        for (int i = 1; i < 25; i++) {
+            //8 means we start from 256
+            //testVariableInputSize("time","square",(int) Math.pow(2,i));
+            testVariableInputSize("compare","square",(int) Math.pow(2,i));
+            testVariableInputSize("compare","circle",(int) Math.pow(2,i));
+            testVariableInputSize("compare","xsqrd",(int) Math.pow(2,i));
+        }
 
     }
     //option: compare or time, arrtype: xsqrd, square, circle, inputsize: number
@@ -218,11 +221,12 @@ public class Main {
                                                                           //sure we wrap around if we reach the end of the list
             for(int i = 0; i < points.size(); i++){
                 Point p1 = points.get(idOfCurrentPoint);
-                Point p2 = points.get(i);
-                Point p3 = points.get(idOfConsideredPoint);
-                int orientation = util.determineOrientation(p1, p3, p2);
+                Point p2 = points.get(idOfConsideredPoint);
+                Point p3 = points.get(i);
+
                 //Determine if counterclockwise
-                if(orientation == 2) {
+                boolean isCounterClockWiseTurn = util.determineOrientation(p1, p2, p3);
+                if(isCounterClockWiseTurn) {
                     idOfConsideredPoint = i;
                 }
             }
@@ -233,43 +237,41 @@ public class Main {
         return CH;
     }
 
+
     public static List<Point> CH_CH(List<Point> points){
-        int n = points.size();
-        for (int i = 1; i < (int) Math.log(n); i++) {
-            List<Point> result = hullsWithSize(points,(int) Math.pow(2,Math.pow(2,i)));
 
-            //if the list is not empty we terminate
-            if (!result.isEmpty()){
-                return result;
+        int n = points.size();
+        for (int i = 1; i <= util.log2(util.log2(n)); i++) {
+            int amountOfSubsets = (int) Math.pow(2,Math.pow(2,i));
+
+            //list of all points in the partial hulls
+            List<Point> subsetHullsCombined = new ArrayList<>();
+            int elementsInSubset = n/amountOfSubsets;
+            for (int j = 1; j < amountOfSubsets; j++) {
+                List<Point> subsetHull = INC_CH(points.subList((j-1)*elementsInSubset,j*elementsInSubset));
+                subsetHullsCombined.addAll(subsetHull);
+
             }
-        }
-        return new ArrayList<Point>();
-    }
 
-    private static List<Point> hullsWithSize(List<Point> points, int amountOfSubsets) {
-        int n = points.size();
-        //list of all points in the partial hulls
-        List<Point> subsetHullsCombined = new ArrayList<>();
-        int elementsInSubset = n/amountOfSubsets;
-        for (int i = 1; i < amountOfSubsets; i++) {
-            List<Point> subsetHull = INC_CH(points.subList((i-1)*elementsInSubset,i*elementsInSubset));
+            //get the remaining points that doesnt divide evenly
+            //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
+            List<Point> subsetHull = INC_CH(points.subList(elementsInSubset*(amountOfSubsets-1), n));
             subsetHullsCombined.addAll(subsetHull);
+
+
+
+
+            List<Point> hull = GIFT_CH(subsetHullsCombined);
+            //if the hull contains the left most and right most point return the final hull
+            if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
+
+                return hull;
+            }
+
         }
-
-        //get the remaining points that doesnt divide evenly
-        //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
-        List<Point> subsetHull = INC_CH(points.subList(elementsInSubset*(amountOfSubsets-1)+1, n));
-        subsetHullsCombined.addAll(subsetHull);
-
-
-        List<Point> hull = GIFT_CH(subsetHullsCombined);
-        if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
-            return hull;
-        }
-
         return new ArrayList<Point>();
-
     }
+
 
 }
 

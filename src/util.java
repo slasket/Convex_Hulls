@@ -23,14 +23,10 @@ public class util {
         if (angle > 180) return 360 - angle;
         return angle;
     }
-    public static int determineOrientation(Point p1, Point p2, Point p3){
+    //returns true if counter clockwise turn, false if clockwise
+    public static boolean determineOrientation(Point p1, Point p2, Point p3){
         float orientationValue = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
-        if(orientationValue >= 0) {
-            return 1; //clockwise
-        }
-        else {
-            return 2; //counterclock wise
-        }
+        return (orientationValue < 0); //if the value is less than 0 return true, a counter clockwise turn
     }
     public static int indexOfSmallesElement(List<Float> list) {
         int indexOfMin = 0;
@@ -60,5 +56,9 @@ public class util {
             System.out.println("angle is devil: " + angle + " slope1: " + slope1 + " slope2: " + slope2);
         }
         return angle;
+    }
+    //taken from https://www.techiedelight.com/calculate-log-base-2-in-java/
+    public static int log2(int x) {
+        return (int) (Math.log(x) / Math.log(2) + 1e-11);
     }
 }
