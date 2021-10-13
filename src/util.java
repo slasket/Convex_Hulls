@@ -43,6 +43,15 @@ public class util {
         }
         return indexOfMin;
     }
+    //public static float angleBetween2Lines(float[] line1, float[] line2) {
+    //    double angle1 = Math.atan2(line1[1]- line1[3],
+    //            line1[0] - line1[2]);
+    //    double angle2 = Math.atan2(line2[1] - line2[3],
+    //            line2[0] - line2[2]);
+    //    float angle = (float) (Math.abs(Math.toDegrees(angle1) - Math.toDegrees(angle2)));
+    //    if (angle > 180) return 360 - angle;
+    //    return angle;
+    //}
 
     public static float angleBetween2Slopes(float slope1, float slope2) {
         float angle = (float) (Math.atan((slope2 - slope1) / (1 - slope2 * slope1)));

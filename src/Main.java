@@ -58,7 +58,7 @@ public class Main {
     public static void testMiniExample(){
         List<Point> miniarr = pointGeneration.randomPointsSquare(10);
         System.out.println(miniarr);
-        System.out.println("gram:" +INC_CH(miniarr));
+        System.out.println("gram:" + INC_CH(miniarr));
         System.out.println("chan:" + CH_CH(miniarr));
         System.out.println("gift:" + GIFT_CH(miniarr));
 
@@ -81,7 +81,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-        threePointComparison();
+        //threePointComparison();
         //testStrictlyOver();
         //testAngleCalculation();
         //testDownwardsAnglePositive();
@@ -90,49 +90,54 @@ public class Main {
         List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(10);
         List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
         List<Point> arrCircle = pointGeneration.randomPointsCircle(10);
-
-        //compareAlgorithms("INC_CH", "CH_CH", arrSquare);
-        //compareAlgorithms("INC_CH", "CH_CH", arrCircle);
-        //compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
-
+        compareAlgorithms("INC_CH", "CH_CH", arrSquare);
+        compareAlgorithms("INC_CH", "CH_CH", arrCircle);
+        compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
         compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
         compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
         compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
-        testVariableInputSize("compare",200);
-        testVariableInputSize("time",100000);
+        testVariableInputSize("compare", "square",200);
 
+        //for (int i = 1; i < 25; i++) {
+        //    //8 means we start from 256
+        //    testVariableInputSize("time","square",(int) Math.pow(2,i));
+        //}
 
     }
+    //option: compare or time, arrtype: xsqrd, square, circle, inputsize: number
+    public static void testVariableInputSize(String option,String arrtype, int inputSize){
+        List<Point> testInput = new ArrayList<>();
+        System.out.println(option+ " on "+arrtype + " of size "+inputSize);
+        switch (arrtype){
+            case "xsqrd":
+                testInput = pointGeneration.randomPointsXSqrd(inputSize);
+                break;
+            case "square":
+                testInput = pointGeneration.randomPointsSquare(inputSize);
+                break;
+            case "circle":
+                testInput = pointGeneration.randomPointsCircle(inputSize);
+                break;
 
-    public static void testVariableInputSize(String option, int inputSize){
-        System.out.println("Testing for input of size "+inputSize);
-        List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(inputSize);
-        List<Point> arrSquare = pointGeneration.randomPointsSquare(inputSize);
-        List<Point> arrCircle = pointGeneration.randomPointsCircle(inputSize);
+        }
 
         switch (option){
             case "compare":
-                compareAlgorithms("INC_CH", "CH_CH", arrSquare);
-                compareAlgorithms("INC_CH", "CH_CH", arrCircle);
-                compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+                compareAlgorithms("INC_CH", "CH_CH", testInput);
 
-                compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
-                compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
-                compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
+                compareAlgorithms("INC_CH", "GIFT_CH", testInput);
+
                 break;
             case "time":
-                timeAlgo("INC_CH",arrSquare);
-                timeAlgo("INC_CH",arrCircle);
-                timeAlgo("INC_CH",arrXSqrd);
-                timeAlgo("CH_CH",arrSquare);
-                timeAlgo("CH_CH",arrCircle);
-                timeAlgo("CH_CH",arrXSqrd);
-                timeAlgo("GIFT_CH",arrSquare);
-                timeAlgo("GIFT_CH",arrCircle);
-                timeAlgo("GIFT_CH",arrXSqrd);
+                timeAlgo("INC_CH",testInput);
+
+                timeAlgo("CH_CH",testInput);
+
+                timeAlgo("GIFT_CH",testInput);
 
         }
+        System.out.println("");
 
     }
 
@@ -142,7 +147,7 @@ public class Main {
         runAlgo(algo,points);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
-        System.out.println(algo+ " "+ points.size()+" "+ duration+"ms");
+        System.out.println(algo+ " "+ duration+"ms");
 
     }
 
@@ -162,6 +167,10 @@ public class Main {
     public static List<Point> INC_CH(List<Point> points){
         List<Point> UH = new ArrayList<>();
         int s = 1;
+        if (points.size()<=2){
+            UH.addAll(points);
+            return UH;
+        }
         UH.add(points.get(0));
         UH.add(points.get(1));
 
