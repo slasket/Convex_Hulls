@@ -74,7 +74,29 @@ public class util {
         }
         return angle;
     }
-    //taken from https://www.techiedelight.com/calculate-log-base-2-in-java/
+
+    public static boolean compareLists(List l1, List l2){
+        boolean result = true;
+        if(l1.size()!=l2.size()) {
+            System.out.println("Lists are not even the same size");
+            return false;
+        }
+        for (int i = 0; i < l1.size(); i++) {
+            if(!l2.contains(l1.get(i))) {
+                System.out.println("L2 did not contain: " + l1.get(i));
+                result = false;
+            }
+        }
+        for (int i = 0; i < l2.size(); i++) {
+            if(!l1.contains(l2.get(i))) {
+                System.out.println("L1 did not contain: " + l2.get(i));
+                result = false;
+            }
+        }
+        return result;
+    }
+
+        //taken from https://www.techiedelight.com/calculate-log-base-2-in-java/
     public static int log2(int x) {
         return (int) (Math.log(x) / Math.log(2) + 1e-11);
     }

@@ -45,7 +45,7 @@ public class Main {
         List<Point> alg1res = runAlgo(alg1,points);
         List<Point> alg2res = runAlgo(alg2,points);
 
-        if (!alg1res.equals(alg2res)){
+        if (!util.compareLists(alg1res,alg2res)){
             System.out.println("NOTEQUAL: "+alg1+ ": "+ alg1res.size()+" " + alg2 + ": "+alg2res.size());
             //System.out.println(alg1+" "+ alg1res);
             //System.out.println(alg2+" "+ alg2res);
@@ -114,9 +114,12 @@ public class Main {
 
         //testVariableInputSize("compare", "square",200);
 
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 10; i++){
             System.out.println(i);
-            testVariableInputSize("compare", "xsqrd", 200);
+            testVariableInputSize("compare", "xsqrd", 1000);
+            testVariableInputSize("compare", "square", 100000);
+            testVariableInputSize("compare", "circle", 100000);
+            //testVariableInputSize("compare", "circle", 100000);
         }
         //for (int i = 1; i < 25; i++) {
         //    //8 means we start from 256
@@ -146,7 +149,7 @@ public class Main {
 
         switch (option){
             case "compare":
-                compareAlgorithms("INC_CH", "CH_CH", testInput);
+                //compareAlgorithms("INC_CH", "CH_CH", testInput);
 
                 compareAlgorithms("INC_CH", "GIFT_CH", testInput);
 
@@ -186,7 +189,7 @@ public class Main {
         }
     }
 
-    public static List<Point> INC_CH(List<Point> points){
+    public static List<Point> INC_CHOLD(List<Point> points){
         List<Point> UH = new ArrayList<>();
         int s = 1;
         if (points.size()<=2){
@@ -197,11 +200,12 @@ public class Main {
         UH.add(points.get(1));
 
         for (int i = 2; i < points.size(); i++) {
-            while (s >= 1 && util.isStriclyOverTemp(UH.get(s - 1), UH.get(s), points.get(i)) == 1){
+            while (s >= 1 && util.determineOrientation(UH.get(s - 1), UH.get(s), points.get(i))){
                 UH.remove(s);
                 s--;
             }
-            UH.add(points.get(i));
+            if(!UH.contains(points.get(i)))
+                UH.add(points.get(i));
             s++;
         }
 
@@ -211,11 +215,12 @@ public class Main {
         BH.add(points.get(1));
 
         for (int i = 2; i < points.size(); i++) {
-            while (s >= 1 && util.isStriclyOverTemp(BH.get(s - 1), BH.get(s), points.get(i)) != 1){
+            while (s >= 1 && !util.determineOrientation(BH.get(s - 1), BH.get(s), points.get(i))){
                 BH.remove(s);
                 s--;
             }
-            BH.add(points.get(i));
+            if(!BH.contains(points.get(i)))
+                BH.add(points.get(i));
             s++;
         }
 
@@ -227,7 +232,68 @@ public class Main {
         return UH;
     }
 
+    public static List<Point> INC_CH(List<Point> points){
+        List<Point> UH = new ArrayList<>();
+
+        //making LH
+        for (Point p : points) {
+            while(UH.size() >= 2 && !util.determineOrientation(UH.get(UH.size()-2), UH.get(UH.size()-1), p)){
+                UH.remove(UH.size()-1);
+            }
+            UH.add(p);
+        }
+
+
+        //making UH
+        int UHsize = UH.size() + 1;
+        for (int i = points.size()-1; i >= 0; i--) {
+            Point p = points.get(i);
+            while(UH.size() >= UHsize && !util.determineOrientation(UH.get(UH.size()-2), UH.get(UH.size()-1), p)){
+                UH.remove(UH.size() - 1);
+            }
+            UH.add(p);
+        }
+
+        UH.remove(UH.size()-1);
+
+        return UH;
+    }
+
     public static List<Point> GIFT_CH(List<Point> points){
+        List<Point> CH = new ArrayList<>();
+
+        int idOfLeftmost = 0;
+
+        int idOfCurrentPoint = idOfLeftmost;
+        Point rayEnd = new Point(points.get(idOfCurrentPoint).x, Integer.MAX_VALUE);
+        Line2D line1 = new Line2D.Float(points.get(idOfCurrentPoint).x,points.get(idOfCurrentPoint).y,rayEnd.x, rayEnd.y);
+        Line2D line2;
+        Line2D bestLineSoFar = null;
+        do{
+            float bestSoFarAngle = Integer.MAX_VALUE;
+            int bestPointIdxSoFar = Integer.MAX_VALUE;
+            for (int i = 0; i < points.size(); i++) { //iterate over all points
+                line2 = new Line2D.Float(points.get(idOfCurrentPoint).x, points.get(idOfCurrentPoint).y, points.get(i).x, points.get(i).y);
+                float angle = util.angleBetween2Lines(line1, line2);
+                if(angle < bestSoFarAngle && !CH.contains(points.get(i))){ //minimize v
+                    bestSoFarAngle = angle;
+                    bestPointIdxSoFar = i;  // v
+                    bestLineSoFar = line2;  // pv
+                }
+            }
+            //System.out.println(bestPointIdxSoFar);
+            CH.add(points.get(bestPointIdxSoFar)); //add v to hull
+            line1 = bestLineSoFar;  // set r to pv
+            idOfCurrentPoint = bestPointIdxSoFar; // set p to v
+
+
+
+        } while(idOfCurrentPoint != idOfLeftmost);
+
+        return CH;
+    }
+
+    public static List<Point> GIFT_CHDENSOMLOOPER(List<Point> points){
         List<Point> CH = new ArrayList<>();
 
         int idOfLeftmost = 0;
@@ -240,7 +306,7 @@ public class Main {
 
             CH.add(points.get(idOfCurrentPoint));
             idOfConsideredPoint = (idOfCurrentPoint + 1) % points.size(); //Considering from the next point while making
-                                                                          //sure we wrap around if we reach the end of the list
+            //sure we wrap around if we reach the end of the list
             for(int i = 0; i < points.size(); i++){
                 Point p1 = points.get(idOfCurrentPoint);
                 Point p2 = points.get(idOfConsideredPoint);
@@ -263,11 +329,10 @@ public class Main {
             }
             idOfCurrentPoint = idOfConsideredPoint;
 
-            } while(idOfCurrentPoint != idOfLeftmost);
+        } while(idOfCurrentPoint != idOfLeftmost);
 
         return CH;
     }
-
 
     public static List<Point> CH_CH(List<Point> points){
 
