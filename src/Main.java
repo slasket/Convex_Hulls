@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.awt.geom.Line2D;
+import java.util.Random;
 
 public class Main {
 
@@ -75,7 +76,6 @@ public class Main {
         Line2D rayLine = new Line2D.Float(p1.x,p1.y,p2.x,p2.y);
         Line2D candidateLine = new Line2D.Float(p1.x,p1.y,p3.x,p3.y);
         System.out.println(util.angleBetween2Lines(rayLine,candidateLine));
-
     }
 
 
@@ -86,26 +86,45 @@ public class Main {
         //testDownwardsAnglePositive();
         //testMiniExample();
 
-        List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(10);
-        List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
-        List<Point> arrCircle = pointGeneration.randomPointsCircle(10);
-        compareAlgorithms("INC_CH", "CH_CH", arrSquare);
-        compareAlgorithms("INC_CH", "CH_CH", arrCircle);
-        compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
-        System.out.println("");
-        compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
-        compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
-        compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
+        //List<Point> arrXSqrd = pointGeneration.randomPointsXSqrd(100);
+        //Random rand = new Random();
+        //for(int i = 0; i < 1000; i++){
+        //    Point p1 = arrXSqrd.get(rand.nextInt(100));
+        //    Point p2 = arrXSqrd.get(rand.nextInt(100));
+        //    Point p3 = arrXSqrd.get(rand.nextInt(100));
+        //    float orientationValue1 = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
+        //    float orientationValue2 = p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y);
+//
+        //    if(orientationValue2 != orientationValue1 && Math.abs(orientationValue2 + orientationValue1) > 0.01){
+        //        System.out.println("They are different");
+        //        System.out.println(orientationValue2 + " : " + orientationValue1);
+        //    }
+//
+        //}
 
-        testVariableInputSize("compare", "square",200);
+        //List<Point> arrSquare = pointGeneration.randomPointsSquare(10);
+        //List<Point> arrCircle = pointGeneration.randomPointsCircle(10);
+        //compareAlgorithms("INC_CH", "CH_CH", arrSquare);
+        //compareAlgorithms("INC_CH", "CH_CH", arrCircle);
+        //compareAlgorithms("INC_CH", "CH_CH", arrXSqrd);
+        //System.out.println("");
+        //compareAlgorithms("INC_CH", "GIFT_CH", arrSquare);
+        //compareAlgorithms("INC_CH", "GIFT_CH", arrCircle);
+        //compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
-        for (int i = 1; i < 25; i++) {
-            //8 means we start from 256
-            //testVariableInputSize("time","square",(int) Math.pow(2,i));
-            testVariableInputSize("compare","square",(int) Math.pow(2,i));
-            testVariableInputSize("compare","circle",(int) Math.pow(2,i));
-            testVariableInputSize("compare","xsqrd",(int) Math.pow(2,i));
+        //testVariableInputSize("compare", "square",200);
+
+        for(int i = 0; i < 10000; i++){
+            System.out.println(i);
+            testVariableInputSize("compare", "xsqrd", 200);
         }
+        //for (int i = 1; i < 25; i++) {
+        //    //8 means we start from 256
+        //    //testVariableInputSize("time","square",(int) Math.pow(2,i));
+        //    testVariableInputSize("compare","square",(int) Math.pow(2,i));
+        //    testVariableInputSize("compare","circle",(int) Math.pow(2,i));
+        //    testVariableInputSize("compare","xsqrd",(int) Math.pow(2,i));
+        //}
 
     }
     //option: compare or time, arrtype: xsqrd, square, circle, inputsize: number
@@ -178,7 +197,7 @@ public class Main {
         UH.add(points.get(1));
 
         for (int i = 2; i < points.size(); i++) {
-            while (s >= 1 && util.isStriclyOver(UH.get(s - 1), UH.get(s), points.get(i))){
+            while (s >= 1 && util.isStriclyOverTemp(UH.get(s - 1), UH.get(s), points.get(i)) == 1){
                 UH.remove(s);
                 s--;
             }
@@ -192,7 +211,7 @@ public class Main {
         BH.add(points.get(1));
 
         for (int i = 2; i < points.size(); i++) {
-            while (s >= 1 && !util.isStriclyOver(BH.get(s - 1), BH.get(s), points.get(i))){
+            while (s >= 1 && util.isStriclyOverTemp(BH.get(s - 1), BH.get(s), points.get(i)) != 1){
                 BH.remove(s);
                 s--;
             }
@@ -215,7 +234,10 @@ public class Main {
 
         int idOfCurrentPoint = idOfLeftmost;
         int idOfConsideredPoint;
+        int ctr = 0;
         do {
+            ctr++;
+
             CH.add(points.get(idOfCurrentPoint));
             idOfConsideredPoint = (idOfCurrentPoint + 1) % points.size(); //Considering from the next point while making
                                                                           //sure we wrap around if we reach the end of the list
@@ -223,11 +245,20 @@ public class Main {
                 Point p1 = points.get(idOfCurrentPoint);
                 Point p2 = points.get(idOfConsideredPoint);
                 Point p3 = points.get(i);
-
-                //Determine if counterclockwise
-                boolean isCounterClockWiseTurn = util.determineOrientation(p1, p2, p3);
-                if(isCounterClockWiseTurn) {
-                    idOfConsideredPoint = i;
+                if(i != idOfCurrentPoint && i != idOfConsideredPoint) {
+                    float orientationValue = util.isStriclyOverTemp(p1, p2, p3);
+                    if(orientationValue == 0 && util.distanceBetweenTwoPoints(p1, p2) < util.distanceBetweenTwoPoints(p1, p3)){
+                        idOfConsideredPoint = i;
+                    }
+                    //Determine if counterclockwise
+                    //boolean isCounterClockWiseTurn = (util.isStriclyOverTemp(p1, p2, p3) == 1);
+                    else if(orientationValue == 1) {
+                        idOfConsideredPoint = i;
+                    }
+                    if(ctr > 210) {
+                        System.out.println(p1 + " " + p2 + " " + p3);
+                        System.out.println(idOfConsideredPoint + " " + idOfCurrentPoint);
+                    }
                 }
             }
             idOfCurrentPoint = idOfConsideredPoint;
@@ -250,7 +281,6 @@ public class Main {
             for (int j = 1; j < amountOfSubsets; j++) {
                 List<Point> subsetHull = INC_CH(points.subList((j-1)*elementsInSubset,j*elementsInSubset));
                 subsetHullsCombined.addAll(subsetHull);
-
             }
 
             //get the remaining points that doesnt divide evenly

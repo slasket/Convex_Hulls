@@ -6,6 +6,19 @@ public class util {
         return p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y) > 0;
     }
 
+    public static int isStriclyOverTemp(Point p1, Point p2, Point p3) {
+        float orientationValue = p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y);
+        if(orientationValue > 0) {
+            return 1;
+        }
+        else if(orientationValue < 0){
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    }
+
     public static boolean isStriclyOver1(Point p1, Point p2, Point p3) {
         return p1.x * p2.y - p1.x * p3.y + p2.x * p3.y - p2.x * p1.y + p3.x * p1.y - p3.x * p2.y > 0;
     }
@@ -38,6 +51,10 @@ public class util {
             }
         }
         return indexOfMin;
+    }
+
+    public static float distanceBetweenTwoPoints(Point p1, Point p2){
+        return (float) Math.sqrt(((p1.x - p2.x) * (p1.x - p2.x)) + ((p1.y - p2.y) * (p1.y - p2.y)));
     }
     //public static float angleBetween2Lines(float[] line1, float[] line2) {
     //    double angle1 = Math.atan2(line1[1]- line1[3],
