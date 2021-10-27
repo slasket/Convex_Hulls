@@ -106,4 +106,30 @@ public class util {
     public static int log2(int x) {
         return (int) (Math.log(x) / Math.log(2) + 1e-11);
     }
+
+    static int findLeftmostPointId(List<Point> points) {
+        float leftMostXValue = Float.MAX_VALUE;
+        int resultId = Integer.MAX_VALUE;
+        for (Point p :
+                points) {
+            if (resultId == Integer.MAX_VALUE || p.x < leftMostXValue) {
+                leftMostXValue = p.x;
+                resultId = points.indexOf(p);
+            }
+        }
+        return resultId;
+    }
+
+    public static int findRightmostPointId(List<Point> points) {
+        float rightMostXValue = Float.MIN_VALUE;
+        int resultId = Integer.MAX_VALUE;
+        for (Point p :
+                points) {
+            if (resultId == Integer.MAX_VALUE || p.x > rightMostXValue) {
+                rightMostXValue = p.x;
+                resultId = points.indexOf(p);
+            }
+        }
+        return resultId;
+    }
 }

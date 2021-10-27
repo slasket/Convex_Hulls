@@ -3,6 +3,8 @@ import java.awt.geom.Line2D;
 
 public class Main {
 
+    private static int failCounter;
+
     public static void testStrictlyOver() {
         int n = 500;
         ArrayList<Point> points = pointGeneration.randomPointsXSqrd(n);
@@ -37,8 +39,8 @@ public class Main {
         }
     }
 
-
-    public static void compareAlgorithms(String alg1, String alg2, List<Point> points) {
+    //returns true if the algorithms outputted the same hull
+    public static boolean compareAlgorithms(String alg1, String alg2, List<Point> points) {
         List<Point> alg1res = runAlgo(alg1,points);
         List<Point> alg2res = runAlgo(alg2,points);
         if (!util.compareLists(alg1res, alg2res)){
@@ -47,10 +49,11 @@ public class Main {
             System.out.println(alg1res);
             System.out.println(alg2);
             System.out.println(alg2res);
+            return false;
         }else {
             System.out.println(alg1 +", " + alg2 +" are equal.");
         }
-
+        return true;
     }
 
 
@@ -58,7 +61,7 @@ public class Main {
         List<Point> miniarr = pointGeneration.randomPointsSquare(10);
         System.out.println(miniarr);
         System.out.println("gram:" + INC_CH(miniarr));
-        System.out.println("chan:" + CH_CH(miniarr));
+        //System.out.println("chan:" + CH_CH(miniarr));
         System.out.println("gift:" + GIFT_CH(miniarr));
 
     }
@@ -112,18 +115,19 @@ public class Main {
 
         //testVariableInputSize("compare", "square",200);
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 50; i++){
             System.out.println("Test number: " + (i+1));
-            testVariableInputSize("compare", "xsqrd", 1000);
+            testVariableInputSize("compare", "xsqrd", 100000);
             testVariableInputSize("compare", "square", 100000);
             testVariableInputSize("compare", "circle", 100000);
 
-            //testVariableInputSize("time", "xsqrd", 1000);
+            //testVariableInputSize("time", "xsqrd", 100000);
             //testVariableInputSize("time", "square", 100000);
             //testVariableInputSize("time", "circle", 100000);
 
             //testVariableInputSize("compare", "circle", 100000);
         }
+        System.out.println("Total fails = " + failCounter);
         //for (int i = 1; i < 25; i++) {
         //    //8 means we start from 256
         //    //testVariableInputSize("time","square",(int) Math.pow(2,i));
@@ -153,9 +157,8 @@ public class Main {
         switch (option){
             case "compare":
                 //compareAlgorithms("INC_CH", "CH_CH", testInput);
-
-                compareAlgorithms("INC_CH", "GIFT_CH", testInput);
-                compareAlgorithms("INC_CH", "CH_CH", testInput);
+                if(!compareAlgorithms("INC_CH", "GIFT_CH", testInput)) failCounter++; //incrementing failCounter field if not same hull
+                if(!compareAlgorithms("INC_CH", "CH_CH", testInput)) failCounter++;
 
                 break;
             case "time":
@@ -187,7 +190,7 @@ public class Main {
             case "GIFT_CH":
                 return GIFT_CH(points);
             case "CH_CH":
-                return CH_CH(points);
+                return CH_CHNEW(points);
             default:
                 return new ArrayList<>();
         }
@@ -206,21 +209,23 @@ public class Main {
         }
 
         //making LH
-        List<Point> LH = new ArrayList<>();
-        for (int i = points.size()-1; i >= 0; i--) {
-            while(LH.size() >= 2 && util.determineOrientation(LH.get(LH.size()-2), LH.get(LH.size()-1), points.get(i))){
-                LH.remove(LH.size()-1);
-            }
-            LH.add(points.get(i));
-        }
-        LH.remove(LH.size()-1); LH.remove(0);
-        UH.addAll(LH);
+        //List<Point> LH = new ArrayList<>();
+        //for (int i = points.size()-1; i >= 0; i--) {
+        //    while(LH.size() >= 2 && util.determineOrientation(LH.get(LH.size()-2), LH.get(LH.size()-1), points.get(i))){
+        //        LH.remove(LH.size()-1);
+        //    }
+        //    LH.add(points.get(i));
+        //}
+        //LH.remove(LH.size()-1); LH.remove(0);
+        //UH.addAll(LH);
 
         return UH;
     }
 
     public static List<Point> GIFT_CH(List<Point> points){ //DENNE METODE ER BETYDELIG LANGSOMMERE END INC_CH
         List<Point> CH = new ArrayList<>();
+        //int idOfLeftmost = util.findLeftmostPointId(points);
+        //int idOfRightMost = util.findRightmostPointId(points);
         CH.add(points.get(0));
 
         int idOfLeftmost = 0;
@@ -251,12 +256,12 @@ public class Main {
             idOfCurrentPoint = bestPointIdxSoFar; // set p to v
 
 
-        } while(idOfCurrentPoint != idOfLeftmost);
+        } while(idOfCurrentPoint != idOfRightMost);
 
         return CH;
     }
 
-    public static List<Point> CH_CH(List<Point> points){
+    public static List<Point> CH_CHSIMONERGAY(List<Point> points){
 
         int n = points.size();
         for (int i = 1; i <= util.log2(util.log2(n)); i++) {
@@ -289,6 +294,147 @@ public class Main {
         return new ArrayList<Point>();
     }
 
+    public static List<Point> CH_CHNEW(List<Point> points){
 
+        int numberOfPoints = points.size();
+        for (int i = 1; i <= Math.ceil(util.log2(util.log2(numberOfPoints))); i++) { //Ceiling to allow numbers that are not powers of two.
+            //Point with rightmost/highest x coordinate
+            float pXMax = points.get(numberOfPoints-1).x;
+            int h = (int) Math.pow(2,Math.pow(2,i));
+            List<Point> UH = UHWithSize(points, numberOfPoints, pXMax, h);
+            if(UH.get(UH.size()-1).x == pXMax) {
+                return UH;
+            }
+        }
+        return new ArrayList<Point>();
+
+
+    }
+
+    private static List<Point> UHWithSize(List<Point> points, int numberOfPoints, float pXMax, int h) {
+        List<Point> UH = new ArrayList<>();
+        //list of lists of all points in the partial hulls
+        List<List<Point>> subsetHullsCombined = new ArrayList<>();
+        int m;
+        if(numberOfPoints/h < 1) {
+            m = 1;
+        }
+        else {
+            m = numberOfPoints / h;
+        }
+        //int m = numberOfPoints / h; //If division is less than 1, return 1 instead to fix shit
+        for (int j = 1; j < m; j++) { //Compute upperhulls for all subsets
+            List<Point> subsetHull = INC_CH(points.subList((j-1)*h,j*h));
+            subsetHullsCombined.add(subsetHull);
+        }
+
+        //get the remaining points that doesn't divide evenly
+        //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
+        List<Point> subsetHull = INC_CH(points.subList(h*(m-1), numberOfPoints));
+        subsetHullsCombined.add(subsetHull);
+
+
+        //Initialize p to point with leftmost/lowest x coordinate
+        Point p = subsetHullsCombined.get(0).get(0);
+        Point rayEnd = new Point(p.x, Integer.MAX_VALUE);
+        Line2D ray = new Line2D.Float(p.x,p.y,rayEnd.x, rayEnd.y);
+        for(int j = 0; j < h; j++){ //Loop h times
+            UH.add(p);
+            //Break if p is point with max x coordinate
+            if(p.x == pXMax) {
+                break;
+            }
+
+            //Perhaps substitute the angle stuff into utility method?
+            float bestAngleSoFar = Float.MAX_VALUE;
+            Line2D bestLineSoFar = ray;
+            Point bestCandPSoFar = rayEnd;
+            for(int k = 0; k < m; k++){ //Compute best upper tangent from p to all subhulls
+                List<Point> subsetHullK = subsetHullsCombined.get(k);
+                if(subsetHullK.size() > 0){
+                    Point candP = BinarySearchForBestTangentPoint(p, subsetHullK);
+                    Line2D rayCand = new Line2D.Float(p.x, p.y, candP.x, candP.y);
+                    if(p != candP){
+                        float angleCand = util.angleBetween2Lines(ray, rayCand);
+                        if(angleCand < bestAngleSoFar){
+                            bestAngleSoFar = angleCand;
+                            bestLineSoFar = rayCand;
+                            bestCandPSoFar = candP;
+                        }
+                    }
+                }
+            }
+            p = bestCandPSoFar;
+            ray = bestLineSoFar;
+
+            //Remove any vertex in subhulls to the left of new p
+            Iterator<List<Point>> iterator = subsetHullsCombined.iterator();
+            while(iterator.hasNext()){
+                List<Point> subHull = iterator.next();
+                Iterator<Point> iterator1 = subHull.iterator();
+                boolean removalComplete = false;
+                while(iterator1.hasNext()){
+                    Point pToRemove = iterator1.next();
+                    if(pToRemove.x < p.x){
+                        iterator1.remove();
+                    }
+                    else {
+                        removalComplete = true;
+                        break;
+                    }
+                }
+                if(removalComplete){
+                    break;
+                }
+            }
+        }
+        return UH;
+    }
+
+    private static Point BinarySearchForBestTangentPoint(Point p, List<Point> points) {
+        switch(points.size()) {
+            case 1:
+                return points.get(0);
+            case 2:
+                Point p0 = points.get(0);
+                Point p1 = points.get(1);
+                if(p == p0) {
+                    return p1;
+                }
+                if(util.determineOrientation(p, p0, p1)){
+                    return p1;
+                }
+                else {
+                    return p0;
+                }
+            default:
+                int medianIndex = points.size()/2;
+                Point medianPoint = points.get(medianIndex);
+                Point nextPoint = points.get(medianIndex + 1);
+                Point prevPoint = points.get(medianIndex - 1);
+                if(prevPoint == p) {
+                    return medianPoint;
+                }
+                if(medianPoint == p) {
+                    return nextPoint;
+                }
+                if(nextPoint == p) {
+                    return BinarySearchForBestTangentPoint(p, points.subList(medianIndex + 1, points.size()));
+                }
+                boolean isNextAbove = util.determineOrientation(p, medianPoint, nextPoint);
+                boolean isPrevBelow = !util.determineOrientation(p, medianPoint, prevPoint);
+                if(isNextAbove && isPrevBelow){
+                    //Move right and call recursively
+                    return BinarySearchForBestTangentPoint(p, points.subList(medianIndex + 1, points.size()));
+                }
+                else if(!isNextAbove && !isPrevBelow) {
+                    //Move left and call recursively
+                    return BinarySearchForBestTangentPoint(p, points.subList(0, medianIndex));
+                }
+                else {
+                    return medianPoint;
+                }
+        }
+    }
 }
 
