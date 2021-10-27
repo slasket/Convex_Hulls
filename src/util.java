@@ -39,7 +39,7 @@ public class util {
     //returns true if counter clockwise turn, false if clockwise
     public static boolean determineOrientation(Point p1, Point p2, Point p3){
         float orientationValue = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
-        return (orientationValue < 0); //if the value is less than 0 return true, a counter clockwise turn
+        return (orientationValue <= 0); //if the value is less than 0 return true, a counter clockwise turn
     }
     public static int indexOfSmallesElement(List<Float> list) {
         int indexOfMin = 0;
@@ -91,6 +91,12 @@ public class util {
             if(!l1.contains(l2.get(i))) {
                 System.out.println("L1 did not contain: " + l2.get(i));
                 result = false;
+            }
+        }
+        for (int i = 0; i < l1.size(); i++) {
+            if(l1.get(i) != l2.get(i) && result){
+                System.out.println("Lists are not in the same order");
+                return false;
             }
         }
         return result;
