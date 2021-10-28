@@ -143,8 +143,8 @@ public class Main {
     }
 
     private static void timeVSinputSizeToList(String method, String ArrType) {
-        System.out.println(method+", "+ArrType+": input size, time in ms:");
-        for (int i = 1; i < 24; i++) {
+        System.out.println(method+", "+ArrType+": input size, time in ms, hullsize:");
+        for (int i = 6; i < 24; i++) {
             testVariableInputSize("timeToList", ArrType, (int) Math.pow(2,i),method);
         }
     }
@@ -158,7 +158,7 @@ public class Main {
         }
         switch (arrtype){
             case "xsqrd":
-                testInput = pointGeneration.randomPointsXSqrd(inputSize);
+                testInput = pointGeneration.randomPointsXSqrdInverted(inputSize);
                 break;
             case "square":
                 testInput = pointGeneration.randomPointsSquare(inputSize);

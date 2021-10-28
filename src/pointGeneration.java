@@ -19,6 +19,22 @@ public class pointGeneration {
         return points;
     }
 
+    public static ArrayList<Point> randomPointsXSqrdInverted(int n) {
+        Random r = new Random();
+        ArrayList<Point> points = new ArrayList<Point>();
+        Point p0 = new Point(0, 0);
+        points.add(p0);
+        for (int i = 1; i < n; i++) {
+            float oldY = points.get(i - 1).x;
+            float newY = oldY + r.nextFloat();
+            Point p = new Point(newY * newY, newY);
+            points.add(p);
+        }
+        //Collections.sort(points);
+        return points;
+    }
+
+
     public static List<Point> randomPointsSquare(int n) {
         Random r = new Random();
         ArrayList<Point> points = new ArrayList<Point>();
@@ -28,8 +44,9 @@ public class pointGeneration {
         }
         //Collections.sort(points);
         return points;
-    }//implementation idea taken from stackoverflow comment: https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
+    }
 
+    //implementation idea taken from stackoverflow comment: https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
     public static List<Point> randomPointsCircle(int n) {
         Random r = new Random();
         ArrayList<Point> points = new ArrayList<Point>();
