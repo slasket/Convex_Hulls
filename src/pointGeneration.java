@@ -15,7 +15,7 @@ public class pointGeneration {
             Point p = new Point(newX, newX * newX);
             points.add(p);
         }
-        Collections.sort(points);
+        //Collections.sort(points);
         return points;
     }
 
@@ -26,7 +26,7 @@ public class pointGeneration {
             Point p = new Point(100 * r.nextFloat(), 100 * r.nextFloat());
             points.add(p);
         }
-        Collections.sort(points);
+        //Collections.sort(points);
         return points;
     }//implementation idea taken from stackoverflow comment: https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
 
@@ -45,7 +45,7 @@ public class pointGeneration {
             Point p = new Point(num * (float) Math.cos(radius), (num * (float) Math.sin(radius)));
             points.add(p);
         }
-        Collections.sort(points);
+        //Collections.sort(points);
         return points;
     }
 }

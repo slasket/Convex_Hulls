@@ -1,5 +1,6 @@
 import java.util.*;
 import java.awt.geom.Line2D;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -114,19 +115,41 @@ public class Main {
         //compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
         //testVariableInputSize("compare", "square",200);
-
         for(int i = 0; i < 50; i++){
-            System.out.println("Test number: " + (i+1));
-            testVariableInputSize("compare", "xsqrd", 100000);
-            testVariableInputSize("compare", "square", 100000);
-            testVariableInputSize("compare", "circle", 100000);
+            //System.out.println("Test number: " + (i+1));
+            //testVariableInputSize("compare", "xsqrd", 100000);
+            //testVariableInputSize("compare", "square", 100000);
+            //testVariableInputSize("compare", "circle", 100000);
 
-            //testVariableInputSize("time", "xsqrd", 100000);
-            //testVariableInputSize("time", "square", 100000);
-            //testVariableInputSize("time", "circle", 100000);
+            testVariableInputSize("time", "xsqrd", 100000);
+            testVariableInputSize("time", "square", 100000);
+            testVariableInputSize("time", "circle", 100000);
 
             //testVariableInputSize("compare", "circle", 100000);
         }
+        //for(int i = 0; i < 7; i++){
+        //    int inputSize = (int) Math.pow(2, i + 12);
+        //    String option = "INC_CH";
+        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
+        //    testAvgTimeAlgo(inputSize, option, "square");
+        //    testAvgTimeAlgo(inputSize, option, "circle");
+        //}
+        //for(int i = 0; i < 7; i++){
+        //    System.out.println("Test number: " + (i+1));
+        //    int inputSize = (int) Math.pow(2, i + 12);
+        //    String option = "GIFT_CH";
+        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
+        //    testAvgTimeAlgo(inputSize, option, "square");
+        //    testAvgTimeAlgo(inputSize, option, "circle");
+        //}
+        //for(int i = 0; i < 7; i++){
+        //    System.out.println("Test number: " + (i+1));
+        //    int inputSize = (int) Math.pow(2, i + 12);
+        //    String option = "CH_CH";
+        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
+        //    testAvgTimeAlgo(inputSize, option, "square");
+        //    testAvgTimeAlgo(inputSize, option, "circle");
+        //}
         System.out.println("Total fails = " + failCounter);
         //for (int i = 1; i < 25; i++) {
         //    //8 means we start from 256
@@ -137,6 +160,28 @@ public class Main {
         //}
 
     }
+
+    private static void testAvgTimeAlgo(int inputSize, String option, String arrtype) {
+        double avgTime = 0;
+        List<Point> testInput = new ArrayList<>();
+        System.out.println(option+ " on "+arrtype + " of size "+inputSize);
+        switch (arrtype){
+            case "xsqrd":
+                testInput = pointGeneration.randomPointsXSqrd(inputSize);
+                break;
+            case "square":
+                testInput = pointGeneration.randomPointsSquare(inputSize);
+                break;
+            case "circle":
+                testInput = pointGeneration.randomPointsCircle(inputSize);
+                break;
+        }
+
+        avgTime =+ timeAlgo(option,testInput);
+
+        System.out.println("Time for " + option + ": " + avgTime); //actually total time xd
+    }
+
     //option: compare or time, arrtype: xsqrd, square, circle, inputsize: number
     public static void testVariableInputSize(String option,String arrtype, int inputSize){
         List<Point> testInput = new ArrayList<>();
@@ -156,7 +201,6 @@ public class Main {
 
         switch (option){
             case "compare":
-                //compareAlgorithms("INC_CH", "CH_CH", testInput);
                 if(!compareAlgorithms("INC_CH", "GIFT_CH", testInput)) failCounter++; //incrementing failCounter field if not same hull
                 if(!compareAlgorithms("INC_CH", "CH_CH", testInput)) failCounter++;
 
@@ -174,13 +218,13 @@ public class Main {
     }
 
 
-    public static void timeAlgo(String algo, List<Point> points){
+    public static long timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
         runAlgo(algo,points);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
         System.out.println(algo+ " "+ duration+"ms");
-
+        return duration;
     }
 
     public static List<Point> runAlgo(String algo, List<Point> points){
@@ -190,7 +234,7 @@ public class Main {
             case "GIFT_CH":
                 return GIFT_CH(points);
             case "CH_CH":
-                return CH_CHNEW(points);
+                return CH_CH(points);
             default:
                 return new ArrayList<>();
         }
@@ -199,13 +243,15 @@ public class Main {
 
     public static List<Point> INC_CH(List<Point> points){
         List<Point> UH = new ArrayList<>();
+        List<Point> pointsSorted = new ArrayList<>(List.copyOf(points));
+        Collections.sort(pointsSorted);
 
         //making UH
-        for (int i = 0; i < points.size(); i++) {
-            while(UH.size() >= 2 && util.determineOrientation(UH.get(UH.size()-2), UH.get(UH.size()-1), points.get(i))){
+        for (int i = 0; i < pointsSorted.size(); i++) {
+            while(UH.size() >= 2 && util.determineOrientation(UH.get(UH.size()-2), UH.get(UH.size()-1), pointsSorted.get(i))){
                 UH.remove(UH.size() - 1);
             }
-            UH.add(points.get(i));
+            UH.add(pointsSorted.get(i));
         }
 
         //making LH
@@ -224,12 +270,10 @@ public class Main {
 
     public static List<Point> GIFT_CH(List<Point> points){ //DENNE METODE ER BETYDELIG LANGSOMMERE END INC_CH
         List<Point> CH = new ArrayList<>();
-        //int idOfLeftmost = util.findLeftmostPointId(points);
-        //int idOfRightMost = util.findRightmostPointId(points);
-        CH.add(points.get(0));
+        int idOfLeftmost = util.findLeftmostPointId(points);
+        int idOfRightMost = util.findRightmostPointId(points);
 
-        int idOfLeftmost = 0;
-        int idOfRightMost = points.size()-1;
+        CH.add(points.get(idOfLeftmost));
 
         int idOfCurrentPoint = idOfLeftmost;
         Point rayEnd = new Point(points.get(idOfCurrentPoint).x, Integer.MAX_VALUE);
@@ -249,7 +293,6 @@ public class Main {
                     bestLineSoFar = line2;  // pv
                 }
             }
-            //System.out.println(bestPointIdxSoFar);
             if(CH.contains(points.get(bestPointIdxSoFar)) && bestPointIdxSoFar == idOfLeftmost) break;
             CH.add(points.get(bestPointIdxSoFar)); //add v to hull
             line1 = bestLineSoFar;  // set r to pv
@@ -261,47 +304,15 @@ public class Main {
         return CH;
     }
 
-    public static List<Point> CH_CHSIMONERGAY(List<Point> points){
-
-        int n = points.size();
-        for (int i = 1; i <= util.log2(util.log2(n)); i++) {
-            int amountOfSubsets = (int) Math.pow(2,Math.pow(2,i));
-
-            //list of all points in the partial hulls
-            List<Point> subsetHullsCombined = new ArrayList<>();
-            int elementsInSubset = n/amountOfSubsets;
-            for (int j = 1; j < amountOfSubsets; j++) {
-                List<Point> subsetHull = INC_CH(points.subList((j-1)*elementsInSubset,j*elementsInSubset));
-                subsetHullsCombined.addAll(subsetHull);
-            }
-
-            //get the remaining points that doesnt divide evenly
-            //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
-            List<Point> subsetHull = INC_CH(points.subList(elementsInSubset*(amountOfSubsets-1), n));
-            subsetHullsCombined.addAll(subsetHull);
-
-
-
-
-            List<Point> hull = GIFT_CH(subsetHullsCombined);
-            //if the hull contains the left most and right most point return the final hull
-            if (hull.contains(points.get(0)) && hull.contains(points.get(n-1))){
-
-                return hull;
-            }
-
-        }
-        return new ArrayList<Point>();
-    }
-
-    public static List<Point> CH_CHNEW(List<Point> points){
-
+    public static List<Point> CH_CH(List<Point> points){
         int numberOfPoints = points.size();
+        //Point with rightmost/highest x coordinate
+        float pXMax = Collections.max(points).x;
+        //Point with point with leftmost/lowest x coordinate
+        Point leftMostPoint = Collections.min(points);
         for (int i = 1; i <= Math.ceil(util.log2(util.log2(numberOfPoints))); i++) { //Ceiling to allow numbers that are not powers of two.
-            //Point with rightmost/highest x coordinate
-            float pXMax = points.get(numberOfPoints-1).x;
             int h = (int) Math.pow(2,Math.pow(2,i));
-            List<Point> UH = UHWithSize(points, numberOfPoints, pXMax, h);
+            List<Point> UH = UHWithSize(points, numberOfPoints, pXMax, h, leftMostPoint);
             if(UH.get(UH.size()-1).x == pXMax) {
                 return UH;
             }
@@ -311,7 +322,7 @@ public class Main {
 
     }
 
-    private static List<Point> UHWithSize(List<Point> points, int numberOfPoints, float pXMax, int h) {
+    private static List<Point> UHWithSize(List<Point> points, int numberOfPoints, float pXMax, int h, Point leftMostPoint) {
         List<Point> UH = new ArrayList<>();
         //list of lists of all points in the partial hulls
         List<List<Point>> subsetHullsCombined = new ArrayList<>();
@@ -322,7 +333,6 @@ public class Main {
         else {
             m = numberOfPoints / h;
         }
-        //int m = numberOfPoints / h; //If division is less than 1, return 1 instead to fix shit
         for (int j = 1; j < m; j++) { //Compute upperhulls for all subsets
             List<Point> subsetHull = INC_CH(points.subList((j-1)*h,j*h));
             subsetHullsCombined.add(subsetHull);
@@ -334,8 +344,9 @@ public class Main {
         subsetHullsCombined.add(subsetHull);
 
 
-        //Initialize p to point with leftmost/lowest x coordinate
-        Point p = subsetHullsCombined.get(0).get(0);
+        //Point with point with leftmost/lowest x coordinate
+        Point p = leftMostPoint;
+
         Point rayEnd = new Point(p.x, Integer.MAX_VALUE);
         Line2D ray = new Line2D.Float(p.x,p.y,rayEnd.x, rayEnd.y);
         for(int j = 0; j < h; j++){ //Loop h times
@@ -372,19 +383,11 @@ public class Main {
             while(iterator.hasNext()){
                 List<Point> subHull = iterator.next();
                 Iterator<Point> iterator1 = subHull.iterator();
-                boolean removalComplete = false;
-                while(iterator1.hasNext()){
+                while(iterator1.hasNext()) {
                     Point pToRemove = iterator1.next();
-                    if(pToRemove.x < p.x){
+                    if (pToRemove.x < p.x) {
                         iterator1.remove();
                     }
-                    else {
-                        removalComplete = true;
-                        break;
-                    }
-                }
-                if(removalComplete){
-                    break;
                 }
             }
         }

@@ -112,7 +112,14 @@ public class util {
         int resultId = Integer.MAX_VALUE;
         for (Point p :
                 points) {
-            if (resultId == Integer.MAX_VALUE || p.x < leftMostXValue) {
+            if (resultId == Integer.MAX_VALUE || p.x <= leftMostXValue) {
+                if(p.x == leftMostXValue){
+                    if(p.y < points.get(resultId).y){
+                        leftMostXValue = p.x;
+                        resultId = points.indexOf(p);
+                    }
+                    continue;
+                }
                 leftMostXValue = p.x;
                 resultId = points.indexOf(p);
             }
@@ -125,7 +132,14 @@ public class util {
         int resultId = Integer.MAX_VALUE;
         for (Point p :
                 points) {
-            if (resultId == Integer.MAX_VALUE || p.x > rightMostXValue) {
+            if (resultId == Integer.MAX_VALUE || p.x >= rightMostXValue) {
+                if(p.x == rightMostXValue){
+                    if(p.y > points.get(resultId).y){
+                        rightMostXValue = p.x;
+                        resultId = points.indexOf(p);
+                    }
+                    continue;
+                }
                 rightMostXValue = p.x;
                 resultId = points.indexOf(p);
             }
