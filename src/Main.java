@@ -115,77 +115,47 @@ public class Main {
         //compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
         //testVariableInputSize("compare", "square",200);
-        for(int i = 0; i < 50; i++){
-            //System.out.println("Test number: " + (i+1));
-            //testVariableInputSize("compare", "xsqrd", 100000);
-            //testVariableInputSize("compare", "square", 100000);
-            //testVariableInputSize("compare", "circle", 100000);
+        //for(int i = 0; i < 50; i++){
+        //    //System.out.println("Test number: " + (i+1));
+        //    //testVariableInputSize("compare", "xsqrd", 100000);
+        //    //testVariableInputSize("compare", "square", 100000);
+        //    //testVariableInputSize("compare", "circle", 100000);
+        //    testVariableInputSize("time", "xsqrd", 100000,"");
+        //    testVariableInputSize("time", "square", 100000,"");
+        //    testVariableInputSize("time", "circle", 100000,"");
+        //    //testVariableInputSize("compare", "circle", 100000);
+        //}
 
-            testVariableInputSize("time", "xsqrd", 100000);
-            testVariableInputSize("time", "square", 100000);
-            testVariableInputSize("time", "circle", 100000);
+        //System.out.println("Total fails = " + failCounter);
+        timeVSinputSizeToList("INC_CH","square");
+        timeVSinputSizeToList("INC_CH","circle");
+        timeVSinputSizeToList("INC_CH","xsqrd");
 
-            //testVariableInputSize("compare", "circle", 100000);
-        }
-        //for(int i = 0; i < 7; i++){
-        //    int inputSize = (int) Math.pow(2, i + 12);
-        //    String option = "INC_CH";
-        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
-        //    testAvgTimeAlgo(inputSize, option, "square");
-        //    testAvgTimeAlgo(inputSize, option, "circle");
-        //}
-        //for(int i = 0; i < 7; i++){
-        //    System.out.println("Test number: " + (i+1));
-        //    int inputSize = (int) Math.pow(2, i + 12);
-        //    String option = "GIFT_CH";
-        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
-        //    testAvgTimeAlgo(inputSize, option, "square");
-        //    testAvgTimeAlgo(inputSize, option, "circle");
-        //}
-        //for(int i = 0; i < 7; i++){
-        //    System.out.println("Test number: " + (i+1));
-        //    int inputSize = (int) Math.pow(2, i + 12);
-        //    String option = "CH_CH";
-        //    testAvgTimeAlgo(inputSize, option, "xsqrd");
-        //    testAvgTimeAlgo(inputSize, option, "square");
-        //    testAvgTimeAlgo(inputSize, option, "circle");
-        //}
-        System.out.println("Total fails = " + failCounter);
-        //for (int i = 1; i < 25; i++) {
-        //    //8 means we start from 256
-        //    //testVariableInputSize("time","square",(int) Math.pow(2,i));
-        //    testVariableInputSize("compare","square",(int) Math.pow(2,i));
-        //    testVariableInputSize("compare","circle",(int) Math.pow(2,i));
-        //    testVariableInputSize("compare","xsqrd",(int) Math.pow(2,i));
-        //}
+        timeVSinputSizeToList("GIFT_CH","square");
+        timeVSinputSizeToList("GIFT_CH","circle");
+        timeVSinputSizeToList("GIFT_CH","xsqrd");
+
+        timeVSinputSizeToList("CH_CH","square");
+        timeVSinputSizeToList("CH_CH","circle");
+        timeVSinputSizeToList("CH_CH","xsqrd");
+        //"xsqrd""square""circle"
 
     }
 
-    private static void testAvgTimeAlgo(int inputSize, String option, String arrtype) {
-        double avgTime = 0;
-        List<Point> testInput = new ArrayList<>();
-        System.out.println(option+ " on "+arrtype + " of size "+inputSize);
-        switch (arrtype){
-            case "xsqrd":
-                testInput = pointGeneration.randomPointsXSqrd(inputSize);
-                break;
-            case "square":
-                testInput = pointGeneration.randomPointsSquare(inputSize);
-                break;
-            case "circle":
-                testInput = pointGeneration.randomPointsCircle(inputSize);
-                break;
+    private static void timeVSinputSizeToList(String method, String ArrType) {
+        System.out.println(method+", "+ArrType+": input size, time in ms:");
+        for (int i = 1; i < 24; i++) {
+            testVariableInputSize("timeToList", ArrType, (int) Math.pow(2,i),method);
         }
-
-        avgTime =+ timeAlgo(option,testInput);
-
-        System.out.println("Time for " + option + ": " + avgTime); //actually total time xd
     }
+
 
     //option: compare or time, arrtype: xsqrd, square, circle, inputsize: number
-    public static void testVariableInputSize(String option,String arrtype, int inputSize){
+    public static void testVariableInputSize(String option,String arrtype, int inputSize, String onlyAlgo){
         List<Point> testInput = new ArrayList<>();
-        System.out.println(option+ " on "+arrtype + " of size "+inputSize);
+        if (!option.equals("timeToList")){
+            System.out.println(option+ " on "+arrtype + " of size "+inputSize);
+        }
         switch (arrtype){
             case "xsqrd":
                 testInput = pointGeneration.randomPointsXSqrd(inputSize);
@@ -206,25 +176,52 @@ public class Main {
 
                 break;
             case "time":
-                timeAlgo("INC_CH",testInput);
+                Long Duration = Long.parseLong(timeAlgo("INC_CH",testInput).split(";")[0]);
+                System.out.println("INC_CH"+ " "+ Duration+"ms");
 
-                timeAlgo("GIFT_CH",testInput);
+                Duration =Long.parseLong(timeAlgo("GIFT_CH",testInput).split(";")[0]);
+                System.out.println("GIFT_CH"+ " "+ Duration+"ms");
 
-                timeAlgo("CH_CH",testInput);
+                Duration =Long.parseLong(timeAlgo("CH_CH",testInput).split(";")[0]);
+                System.out.println("CH_CH"+ " "+ Duration+"ms");
+                break;
+            case "timeToList":
+                String res;
+                String[] resSplit;
+                String lineToPrint;
+                res = timeAlgo(onlyAlgo, testInput);
+                resSplit = res.split(";");
+                long runningTimeInMs = Long.parseLong(resSplit[0]);
+                int hullSize = Integer.parseInt(resSplit[1]);
+                //long actualRunTimeDivTheoretical=0;
+                //switch (onlyAlgo){
+                //    case "INC_CH":
+                //        actualRunTimeDivTheoretical =runningTimeInMs/((long) inputSize *util.log2(inputSize));
+                //        break;
+                //    case "GIFT_CH":
+                //        actualRunTimeDivTheoretical = runningTimeInMs/((long) inputSize *hullSize);
+                //        break;
+                //    case "CH_CH":
+                //        actualRunTimeDivTheoretical = runningTimeInMs/((long) inputSize *util.log2(hullSize));
+                //        break;
+                //}
+                System.out.println(inputSize+".0,"+runningTimeInMs+".0,"+ hullSize+".0");
+
+                break;
 
         }
-        System.out.println("");
+        //System.out.println("");
 
     }
 
-
-    public static long timeAlgo(String algo, List<Point> points){
+    public static String timeAlgo(String algo, List<Point> points){
         long startTime = System.nanoTime();
-        runAlgo(algo,points);
+        List<Point> resArr = runAlgo(algo,points);
         long endTime = System.nanoTime();
-        long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
-        System.out.println(algo+ " "+ duration+"ms");
-        return duration;
+        int resArrSize = resArr.size();
+        long duration = (endTime - startTime)/1000000;
+        String res = duration+";"+resArrSize;
+        return res;
     }
 
     public static List<Point> runAlgo(String algo, List<Point> points){
@@ -318,7 +315,6 @@ public class Main {
             }
         }
         return new ArrayList<Point>();
-
 
     }
 

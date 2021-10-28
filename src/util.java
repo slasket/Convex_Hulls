@@ -53,9 +53,10 @@ public class util {
         return indexOfMin;
     }
 
-    public static float distanceBetweenTwoPoints(Point p1, Point p2){
+    public static float dist2Points(Point p1, Point p2){
         return (float) Math.sqrt(((p1.x - p2.x) * (p1.x - p2.x)) + ((p1.y - p2.y) * (p1.y - p2.y)));
     }
+
     //public static float angleBetween2Lines(float[] line1, float[] line2) {
     //    double angle1 = Math.atan2(line1[1]- line1[3],
     //            line1[0] - line1[2]);
