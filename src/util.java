@@ -104,8 +104,8 @@ public class util {
     }
 
         //taken from https://www.techiedelight.com/calculate-log-base-2-in-java/
-    public static int log2(int x) {
-        return (int) (Math.log(x) / Math.log(2) + 1e-11);
+    public static double log2(double x) {
+        return (Math.log(x) / Math.log(2) + 1e-11);
     }
 
     static int findLeftmostPointId(List<Point> points) {

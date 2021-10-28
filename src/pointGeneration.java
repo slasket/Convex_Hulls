@@ -25,7 +25,7 @@ public class pointGeneration {
         Point p0 = new Point(0, 0);
         points.add(p0);
         for (int i = 1; i < n; i++) {
-            float oldY = points.get(i - 1).x;
+            float oldY = points.get(i - 1).y;
             float newY = oldY + r.nextFloat();
             Point p = new Point(newY * newY, newY);
             points.add(p);

@@ -57,16 +57,18 @@ public class Main {
         //compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
         //testVariableInputSize("compare", "square",200);
-        //for(int i = 0; i < 50; i++){
+        for(int i = 0; i < 50; i++){
         //    //System.out.println("Test number: " + (i+1));
-            testVariableInputSize("compare", "xsqrd", 100000, "");
+            testVariableInputSize("compare", "xsqrd", 2000, "");
             testVariableInputSize("compare", "square", 100000, "");
             testVariableInputSize("compare", "circle", 100000, "");
+        //List<Point> arrXsqrdInverted = pointGeneration.randomPointsXSqrdInverted(2048);
+        //runAlgo("CH_CH", arrXsqrdInverted);
         //    testVariableInputSize("time", "xsqrd", 100000,"");
         //    testVariableInputSize("time", "square", 100000,"");
         //    testVariableInputSize("time", "circle", 100000,"");
         //    //testVariableInputSize("compare", "circle", 100000);
-        //}
+        }
 
         //System.out.println("Total fails = " + failCounter);
         //timeVSinputSizeToList("INC_CH","square");
