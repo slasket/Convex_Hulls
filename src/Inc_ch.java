@@ -3,6 +3,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class Inc_ch {
+    public static void setCount(int count) {
+        Inc_ch.count = count;
+    }
+
+    private static int count = 0;
     public static List<Point> INC_CH(List<Point> points){
         List<Point> UH = new ArrayList<>();
         List<Point> pointsSorted = new ArrayList<>(List.copyOf(points));
@@ -12,8 +17,10 @@ public class Inc_ch {
         for (int i = 0; i < pointsSorted.size(); i++) {
             while(UH.size() >= 2 && util.determineOrientation(UH.get(UH.size()-2), UH.get(UH.size()-1), pointsSorted.get(i))){
                 UH.remove(UH.size() - 1);
+                count++;
             }
             UH.add(pointsSorted.get(i));
+            count++;
         }
 
         //making LH
@@ -28,5 +35,9 @@ public class Inc_ch {
         //UH.addAll(LH);
 
         return UH;
+    }
+
+    public static int getCount() {
+        return count;
     }
 }

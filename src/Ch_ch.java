@@ -5,6 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Ch_ch {
+    public static void setCount(int count) {
+        Ch_ch.count = count;
+    }
+
+    private static int count = 0;
     public static List<Point> CH_CH(List<Point> points){
         int numberOfPoints = points.size();
         //Point with rightmost/highest x coordinate
@@ -34,13 +39,17 @@ public class Ch_ch {
             m = numberOfPoints / h;
         }
         for (int j = 1; j < m; j++) { //Compute upperhulls for all subsets
-            List<Point> subsetHull = Inc_ch.INC_CH(points.subList((j-1)*h,j*h));
+            List<Point> subList = points.subList((j - 1) * h, j * h);
+            List<Point> subsetHull = Inc_ch.INC_CH(subList);
+            count += subList.size() * util.log2(subList.size());
             subsetHullsCombined.add(subsetHull);
         }
 
         //get the remaining points that doesn't divide evenly
         //the remaining points are put into the last partition, this in worst case means that the last partition is almost 2x of all the others
-        List<Point> subsetHull = Inc_ch.INC_CH(points.subList(h*(m-1), numberOfPoints));
+        List<Point> subList = points.subList(h * (m - 1), numberOfPoints);
+        List<Point> subsetHull = Inc_ch.INC_CH(subList);
+        count += subList.size() * util.log2(subList.size());
         subsetHullsCombined.add(subsetHull);
 
 
@@ -95,6 +104,7 @@ public class Ch_ch {
     }
 
     private static Point BinarySearchForBestTangentPoint(Point p, List<Point> points) {
+        count++;
         switch(points.size()) {
             case 1:
                 return points.get(0);
@@ -138,5 +148,9 @@ public class Ch_ch {
                     return medianPoint;
                 }
         }
+    }
+
+    public static int getCount() {
+        return count;
     }
 }

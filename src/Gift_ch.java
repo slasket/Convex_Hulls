@@ -3,10 +3,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Gift_ch {
+    public static void setCount(int count) {
+        Gift_ch.count = count;
+    }
+
+    private static int count = 0;
     public static List<Point> GIFT_CH(List<Point> points){ //DENNE METODE ER BETYDELIG LANGSOMMERE END INC_CH
         List<Point> CH = new ArrayList<>();
         int idOfLeftmost = util.findLeftmostPointId(points);
+        count += points.size();
         int idOfRightMost = util.findRightmostPointId(points);
+        count += points.size();
 
         CH.add(points.get(idOfLeftmost));
 
@@ -19,6 +26,7 @@ public class Gift_ch {
             float bestSoFarAngle = Integer.MAX_VALUE;
             int bestPointIdxSoFar = Integer.MAX_VALUE;
             for (int i = 0; i < points.size(); i++) { //iterate over all points
+                count++;
                 line2 = new Line2D.Float(points.get(idOfCurrentPoint).x, points.get(idOfCurrentPoint).y, points.get(i).x, points.get(i).y);
                 float angle = util.angleBetween2Lines(line1, line2);
 
@@ -37,5 +45,9 @@ public class Gift_ch {
         } while(idOfCurrentPoint != idOfRightMost);
 
         return CH;
+    }
+
+    public static int getCount() {
+        return count;
     }
 }

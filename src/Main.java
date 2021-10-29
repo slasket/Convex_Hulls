@@ -57,7 +57,7 @@ public class Main {
         //compareAlgorithms("INC_CH", "GIFT_CH", arrXSqrd);
 
         //testVariableInputSize("compare", "square",200);
-        for(int i = 0; i < 50; i++){
+        for(int i = 0; i < 10; i++){
         //    //System.out.println("Test number: " + (i+1));
             testVariableInputSize("compare", "xsqrd", 2000, "");
             testVariableInputSize("compare", "square", 100000, "");
@@ -88,8 +88,8 @@ public class Main {
 
     private static void timeVSinputSizeToList(String method, String ArrType) {
         System.out.println(method+", "+ArrType+": input size, time in ms, hullsize:");
-        for (int i = 6; i < 24; i++) {
-            testVariableInputSize("timeToList", ArrType, (int) Math.pow(2,i),method);
+        for (int i = 10; i < 100; i++) {
+            testVariableInputSize("timeToList", ArrType, (int) Math.pow(i,2),method);
         }
     }
 
@@ -135,21 +135,32 @@ public class Main {
                 String lineToPrint;
                 res = timeAlgo(onlyAlgo, testInput);
                 resSplit = res.split(";");
-                long runningTimeInMs = Long.parseLong(resSplit[0]);
+                //long runningTimeInMs = Long.parseLong(resSplit[0]);
                 int hullSize = Integer.parseInt(resSplit[1]);
-                //long actualRunTimeDivTheoretical=0;
-                //switch (onlyAlgo){
-                //    case "INC_CH":
-                //        actualRunTimeDivTheoretical =runningTimeInMs/((long) inputSize *util.log2(inputSize));
-                //        break;
-                //    case "GIFT_CH":
-                //        actualRunTimeDivTheoretical = runningTimeInMs/((long) inputSize *hullSize);
-                //        break;
-                //    case "CH_CH":
-                //        actualRunTimeDivTheoretical = runningTimeInMs/((long) inputSize *util.log2(hullSize));
-                //        break;
-                //}
-                System.out.println(inputSize+".0,"+runningTimeInMs+".0,"+ hullSize+".0");
+                float actualRunTimeDivTheoretical=0;
+                float runningTimeCount = 0;
+                float theoryCount = 0;
+                switch (onlyAlgo){
+                    case "INC_CH":
+                        runningTimeCount = Inc_ch.getCount();
+                        theoryCount = (long) (inputSize * util.log2(inputSize));
+                        Inc_ch.setCount(0);
+                        actualRunTimeDivTheoretical = runningTimeCount/inputSize;
+                        break;
+                    case "GIFT_CH":
+                        runningTimeCount = Gift_ch.getCount();
+                        theoryCount =  inputSize * hullSize;
+                        Gift_ch.setCount(0);
+                        actualRunTimeDivTheoretical = runningTimeCount/theoryCount;
+                        break;
+                    case "CH_CH":
+                        runningTimeCount = Ch_ch.getCount();
+                        theoryCount = (float) (inputSize *util.log2(hullSize));
+                        Ch_ch.setCount(0);
+                        actualRunTimeDivTheoretical = runningTimeCount/theoryCount;
+                        break;
+                }
+                System.out.println(inputSize+".0,"+actualRunTimeDivTheoretical+","+ hullSize+".0");
 
                 break;
 
