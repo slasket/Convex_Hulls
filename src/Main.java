@@ -71,14 +71,12 @@ public class Main {
         }
 
         //System.out.println("Total fails = " + failCounter);
-        //timeVSinputSizeToList("INC_CH","square");
-        //timeVSinputSizeToList("INC_CH","circle");
-        //timeVSinputSizeToList("INC_CH","xsqrd");
-//
+        timeVSinputSizeToList("INC_CH","square");
+        timeVSinputSizeToList("INC_CH","circle");
+        timeVSinputSizeToList("INC_CH","xsqrd");
         //timeVSinputSizeToList("GIFT_CH","square");
         //timeVSinputSizeToList("GIFT_CH","circle");
         //timeVSinputSizeToList("GIFT_CH","xsqrd");
-//
         //timeVSinputSizeToList("CH_CH","square");
         //timeVSinputSizeToList("CH_CH","circle");
         //timeVSinputSizeToList("CH_CH","xsqrd");
